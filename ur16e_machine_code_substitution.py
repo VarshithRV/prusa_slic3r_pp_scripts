@@ -20,8 +20,8 @@ def get_e_value(x):
 delay_s = 0.1 # delay in seconds
 before_extrusion_snippet = "" # format = "something;\n", if nothing is to be done, just use "\n"
 after_extrusion_snippet = ""
-start_extrusion = f"M7; start extrusion;"
-stop_extrusion = f"M9; stop extrusion;"
+start_extrusion = f"M62 P0; start extrusion;"
+stop_extrusion = f"M63 P0; stop extrusion;"
 wait = f"G4 S{delay_s};"
 
 # input 
@@ -127,9 +127,13 @@ with open(source_file_path,"w",encoding='UTF-8') as stdout:
     for command in commands_out:
         stdout.writelines(command+"\n")
 
+
+# change the output file extension to .nc
+
 env_slicer_pp_output_name = str(os.getenv('SLIC3R_PP_OUTPUT_NAME'))
 x = env_slicer_pp_output_name.split("/")
 filename = x[-1].split(".")[0]
-
 with open(source_file_path + '.output_name', mode='w', encoding='UTF-8') as output_file:
-    output_file.write(filename + "_modified.gcode")
+    output_file.write(filename + ".nc")
+
+
