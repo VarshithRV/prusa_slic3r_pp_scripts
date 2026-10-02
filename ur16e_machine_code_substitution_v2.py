@@ -17,7 +17,7 @@ def get_e_value(x):
 
 
 # COMMAND SUBSTITUTION VARIABLES
-delay_s = 0.1 # delay in secs
+delay_s = 0.5 # delay in secs
 before_extrusion_snippet = "" # format = "something;\n", if nothing is to be done, just use "\n"
 after_extrusion_snippet = ""
 start_extrusion = f"M62 P0; start extrusion;"
@@ -85,6 +85,7 @@ for i in range(len(commands)):
     parts = command.split(" ")
     if parts[0] == "G92" or parts[0] == "G1":
         e = get_e_value(parts) # returns none if there is not e
+        e = 0 if e < 0 else e
         if e is None:
             commands_out.append(commands[i])
         elif e is not None:
@@ -102,11 +103,8 @@ for i in range(len(commands)):
                 commands_out.append(after_extrusion_snippet)
 
             if(parts[0] == "G92"):
-                e_prev = e
-                prev_extrusion = extrusion
                 # keep the 92 command here
                 commands_out.append(commands[i])
-                continue
             elif(parts[0] == "G1") and len(parts)>4:
                 # keep the command - the E part
                 # command = ""
@@ -138,5 +136,3 @@ x = env_slicer_pp_output_name.split("/")
 filename = x[-1].split(".")[0]
 with open(source_file_path + '.output_name', mode='w', encoding='UTF-8') as output_file:
     output_file.write(filename + ".nc")
-
-
