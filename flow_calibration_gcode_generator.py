@@ -3,9 +3,9 @@
 # nozzle_diameter in mm, default 1
 n_d  = 0.68
 # extrusion rate in mm/s, default 5 (300mm/min)
-e_r = 5
+e_r = 3.8
 # layer height as percent of n_d 
-l_h_p = 90
+l_h_p = 85
 # travel height in mm
 t_h = 10
 # travel rate in mm/s default 1000mm/min = 16.7mm/s

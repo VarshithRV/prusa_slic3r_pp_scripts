@@ -17,12 +17,14 @@ def get_e_value(x):
 
 
 # COMMAND SUBSTITUTION VARIABLES
-delay_s = 0.1 # delay in secs
+before_delay_s = 0.1 # delay in secs
+after_delay_s = 0.3 # delay in secsv
 before_extrusion_snippet = "" # format = "something;\n", if nothing is to be done, just use "\n"
 after_extrusion_snippet = ""
 start_extrusion = f"M62 P0; start extrusion;"
 stop_extrusion = f"M63 P0; stop extrusion;"
-wait = f"G4 P{delay_s};"
+wait_before = f"G4 P{before_delay_s};"
+wait_after = f"G4 P{after_delay_s};"
 
 # input 
 source_file_path= sys.argv[1] # modify the file with this path in place
@@ -91,14 +93,16 @@ for i in range(len(commands)):
             extrusion = e - e_prev
 
             if prev_extrusion>0 and extrusion<=0: # stopping extrusion
+                commands_out.append(wait_before)
                 commands_out.append(before_extrusion_snippet)
                 commands_out.append(stop_extrusion)
-                commands_out.append(wait)
+                commands_out.append(wait_after)
                 commands_out.append(after_extrusion_snippet)
             elif prev_extrusion <= 0 and extrusion > 0:
+                commands_out.append(wait_before)
                 commands_out.append(before_extrusion_snippet)
                 commands_out.append(start_extrusion) 
-                commands_out.append(wait)
+                commands_out.append(wait_after)
                 commands_out.append(after_extrusion_snippet)
 
             if(parts[0] == "G92"):
