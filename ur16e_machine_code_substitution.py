@@ -15,6 +15,14 @@ def get_e_value(x):
                         str += z
                 return(float(str))
 
+def get_z(parts): 
+    if len(parts):
+        for part in parts:
+            if len(part):
+                if part[0] == "Z":
+                    return float(part[1:])
+
+
 
 # COMMAND SUBSTITUTION VARIABLES
 before_delay_s = 0.3 # delay in secs
@@ -25,6 +33,7 @@ start_extrusion = f"M62 P0; start extrusion;"
 stop_extrusion = f"M63 P0; stop extrusion;"
 wait_before = f"G4 P{before_delay_s};"
 wait_after = f"G4 P{after_delay_s};"
+aft_ext_raise = 2 # in mm
 
 # input 
 source_file_path= sys.argv[1] # modify the file with this path in place
@@ -81,10 +90,15 @@ for i in range(len((indexed_commands))):
 commands_out = []
 e_prev = 0
 prev_extrusion = 0
+latest_z = 0
+layer_height = 0
+
 
 for i in range(len(commands)):
     command,comment = commands[i].split(";")[0], commands[i].split(";")[1]
     parts = command.split(" ")
+    latest_z = get_z(parts) if get_z(parts) else latest_z
+    # get the latest Z value from here
     if parts[0] == "G92" or parts[0] == "G1":
         e = get_e_value(parts) # returns none if there is not e
         if e is None:
@@ -93,17 +107,18 @@ for i in range(len(commands)):
             extrusion = e - e_prev
 
             if prev_extrusion>0 and extrusion<=0: # stopping extrusion
+                raise_command = f"G1 Z{round(layer_height + aft_ext_raise,3)}"
                 commands_out.append(wait_before)
-                commands_out.append(before_extrusion_snippet)
                 commands_out.append(stop_extrusion)
                 commands_out.append(wait_after)
-                commands_out.append(after_extrusion_snippet)
+                commands_out.append(raise_command)
             elif prev_extrusion <= 0 and extrusion > 0:
+                layer_height = round(latest_z,3)
+                drop_command = f"G1 Z{layer_height}"
+                commands_out.append(drop_command)
                 commands_out.append(wait_before)
-                commands_out.append(before_extrusion_snippet)
                 commands_out.append(start_extrusion) 
                 commands_out.append(wait_after)
-                commands_out.append(after_extrusion_snippet)
 
             if(parts[0] == "G92"):
                 e_prev = e

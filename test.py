@@ -15,14 +15,26 @@ def get_e_value(x):
                         str += z
                 return(float(str))
 
+def get_z(parts): 
+    if len(parts):
+        for part in parts:
+            if len(part):
+                if part[0] == "Z":
+                    return float(part[1:])
+
+
 
 # COMMAND SUBSTITUTION VARIABLES
-delay_s = 0.5 # delay in seconds
+before_delay_s = 0.3 # delay in secs
+after_delay_s = 0.1 # delay in secsv
 before_extrusion_snippet = "" # format = "something;\n", if nothing is to be done, just use "\n"
 after_extrusion_snippet = ""
 start_extrusion = f"M62 P0; start extrusion;"
 stop_extrusion = f"M63 P0; stop extrusion;"
-wait = f"G4 S{delay_s};"
+wait_before = f"G4 P{before_delay_s};"
+wait_after = f"G4 P{after_delay_s};"
+aft_ext_raise = 2 # in mm
+aft_ext_raise_speed = 100 # in mms-1
 
 # input 
 source_file_path= sys.argv[1] # modify the file with this path in place
@@ -56,7 +68,7 @@ for i in range(num_lines):
         indexed_commands.append({i:command+";"+ comment})
 
 # note that both indexed commands and comments contain the whole lines, only indexed with line nos
-black_list = ["M104","M109","M107","M82"]
+black_list = ["M104","M109","M107"]
 is_exding = 0
 
 # remove black listed commands
@@ -79,10 +91,15 @@ for i in range(len((indexed_commands))):
 commands_out = []
 e_prev = 0
 prev_extrusion = 0
+latest_z = 0
+layer_height = 0
+
 
 for i in range(len(commands)):
     command,comment = commands[i].split(";")[0], commands[i].split(";")[1]
     parts = command.split(" ")
+    latest_z = get_z(parts) if get_z(parts) else latest_z
+    # get the latest Z value from here
     if parts[0] == "G92" or parts[0] == "G1":
         e = get_e_value(parts) # returns none if there is not e
         if e is None:
@@ -91,45 +108,58 @@ for i in range(len(commands)):
             extrusion = e - e_prev
 
             if prev_extrusion>0 and extrusion<=0: # stopping extrusion
-                commands_out.append(before_extrusion_snippet)
+                raise_command = f"G1 Z{layer_height + aft_ext_raise} F{aft_ext_raise_speed}"
+                commands_out.append(wait_before)
                 commands_out.append(stop_extrusion)
-                commands_out.append(wait)
-                commands_out.append(after_extrusion_snippet)
+                commands_out.append(wait_after)
+                commands_out.append(raise_command)
             elif prev_extrusion <= 0 and extrusion > 0:
-                commands_out.append(before_extrusion_snippet)
+                layer_height = latest_z
+                drop_command = f"G1 Z{layer_height} F{aft_ext_raise_speed}"
+                commands_out.append(drop_command)
+                commands_out.append(wait_before)
                 commands_out.append(start_extrusion) 
-                commands_out.append(wait)
-                commands_out.append(after_extrusion_snippet)
+                commands_out.append(wait_after)
 
             if(parts[0] == "G92"):
                 e_prev = e
                 prev_extrusion = extrusion
+                # keep the 92 command here
+                commands_out.append(commands[i])
                 continue
             elif(parts[0] == "G1") and len(parts)>4:
                 # keep the command - the E part
-                command = ""
-                for part in parts:
-                    if part != "":
-                        if part[0] == 'E':
-                            parts.remove(part)
-                for part in parts:
-                    command += part + " "
-                command += ";"
-                command += comment
-                commands_out.append(command)
+                # command = ""
+                # for part in parts:
+                #     if part != "":
+                #         if part[0] == 'E':
+                #             parts.remove(part)
+                # for part in parts:
+                #     command += part + " "
+                # command += ";"
+                # command += comment
+                # commands_out.append(command)
+                commands_out.append(commands[i])
 
             e_prev = e
             prev_extrusion = extrusion
     else:
         commands_out.append(commands[i])
 
-with open(source_file_path,"w",encoding='UTF-8') as stdout:
+output_file_name = source_file_path.split("/")[-1].split(".")[0]
+output_file_name += "_modified.gcode"
+
+with open(output_file_name,"w",encoding='UTF-8') as stdout:
     for command in commands_out:
         stdout.writelines(command+"\n")
+
+
+# change the output file extension to .nc
 
 env_slicer_pp_output_name = str(os.getenv('SLIC3R_PP_OUTPUT_NAME'))
 x = env_slicer_pp_output_name.split("/")
 filename = x[-1].split(".")[0]
-
 with open(source_file_path + '.output_name', mode='w', encoding='UTF-8') as output_file:
-    output_file.write(filename + "_modified.gcode")
+    output_file.write(filename + ".nc")
+
+
