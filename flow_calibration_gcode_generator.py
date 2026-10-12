@@ -1,17 +1,17 @@
 #!/bin/python3
 
 # nozzle_diameter in mm, default 1
-n_d  = 0.68
+n_d  = 1.1
 # extrusion rate in mm/s, default 5 (300mm/min)
-e_r = 3.8
+e_r = 5
 # layer height as percent of n_d 
-l_h_p = 85
+l_h_p = 100
 # travel height in mm
-t_h = 10
+t_h = 110
 # travel rate in mm/s default 1000mm/min = 16.7mm/s
-t_r = 16.7
+t_r = 100
 # line size
-l_l = 50
+l_l = 10
 
 
 calibration_gcode = ""
@@ -19,14 +19,15 @@ l_h = n_d *(l_h_p/100)
 
 starting_code = "" \
 "G28 ; home all axes\n" \
-"G1 Z5 F5000 ; lift nozzle\n" \
+"G1 Z110 F5000 ; lift nozzle\n" \
 "G21 ; set units to millimeters\n" \
 "G90 ; use absolute coordinates\n" \
 "M82 ; use absolute distances for extrusion\n" \
 "G92 E0 ; reset extrusion distance\n"
 
 end_code = "G92 E0 ; reset extrusion distance\n" \
-"G28; home\n"
+"G1 Z110; \n" \
+"G1 X0 Y0; home x and y \n"
 
 start_extrusion = "M62 P0; stop extrusion;\nG4 P0.1;\n" 
 

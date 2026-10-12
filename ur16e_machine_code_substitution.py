@@ -17,8 +17,8 @@ def get_e_value(x):
 
 
 # COMMAND SUBSTITUTION VARIABLES
-before_delay_s = 0.1 # delay in secs
-after_delay_s = 0.3 # delay in secsv
+before_delay_s = 0.3 # delay in secs
+after_delay_s = 0.1 # delay in secsv
 before_extrusion_snippet = "" # format = "something;\n", if nothing is to be done, just use "\n"
 after_extrusion_snippet = ""
 start_extrusion = f"M62 P0; start extrusion;"
