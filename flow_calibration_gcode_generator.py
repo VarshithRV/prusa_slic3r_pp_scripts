@@ -1,7 +1,7 @@
 #!/bin/python3
 
 # nozzle_diameter in mm, default 1
-n_d  = 1.1
+n_d  = 2
 # extrusion rate in mm/s, default 5 (300mm/min)
 e_r = 5
 # layer height as percent of n_d 
