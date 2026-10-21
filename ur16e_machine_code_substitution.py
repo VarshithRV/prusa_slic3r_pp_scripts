@@ -58,13 +58,13 @@ def draw_rectilinear_x_perturbations(x,f,a,n,f_set):
     perturbation_str = ""
     for i in range(n):
         # set speed
-        # perturbation_str += f"G1 F{speed}\n"
+        perturbation_str += f"G1 F{speed*60}\n"
         # quarter at a time
         perturbation_str += f"G1 X{x - a}\n"
         perturbation_str += f"G1 X{x + a}\n"
         perturbation_str += f"G1 X{x}\n"
         # set speed to printing speed
-        # perturbation_str += f"G1 F{f_set}\n"
+        perturbation_str += f"G1 F{f_set}\n"
     return perturbation_str
 
 
@@ -149,10 +149,10 @@ for i in range(len(commands)):
     latest_x = get_x(parts) if get_x(parts) else latest_x
     latest_y = get_y(parts) if get_y(parts) else latest_y
     latest_z = get_z(parts) if get_z(parts) else latest_z
-    latest_f = get_f(parts) if get_f(parts) else latest_f
     # get the latest Z value from here
     if parts[0] == "G92" or parts[0] == "G1":
         e = get_e_value(parts) # returns none if there is not e
+        latest_f = get_f(parts) if get_f(parts) else latest_f
         if e is None:
             commands_out.append(commands[i])
         elif e is not None:

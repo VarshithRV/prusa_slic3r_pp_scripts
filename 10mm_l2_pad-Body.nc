@@ -14,9 +14,11 @@ G4 P0.3;
 M63 P0; stop extrusion;
 G4 P0.2;
 G1 Z56.4471
+G1 F2400
 G1 X98.0
 G1 X102.0
 G1 X100.0
+G1 F900.0
 
 G92 E0 ; reset extrusion distance
 G1 X99.302 Y64.302 F6000 ; move to first layer point
@@ -81,9 +83,11 @@ G4 P0.3;
 M63 P0; stop extrusion;
 G4 P0.2;
 G1 Z25.394099999999998
+G1 F2400
 G1 X91.566
 G1 X95.566
 G1 X93.566
+G1 F900.0
 
 G92 E0 ; reset extrusion distance
 G1 Z25.719 ; simple layer change
@@ -441,9 +445,11 @@ G4 P0.3;
 M63 P0; stop extrusion;
 G4 P0.2;
 G1 Z28.8491
+G1 F2400
 G1 X97.621
 G1 X101.621
 G1 X99.621
+G1 F900.0
 
 G92 E0 ; reset extrusion distance
 G1 Z110 F5000; raise to 50mm
