@@ -164,8 +164,8 @@ for i in range(len(commands)):
                 commands_out.append(wait_after)
                 # spike management
                 # move up by one layer
-                commands_out.append(f"G1 Z{latest_z + layer_height}")
-                commands_out.append(draw_rectilinear_x_perturbations(latest_x,5,2,1,latest_f))
+                commands_out.append(f"G1 Z{latest_z + layer_height + 0.6}")
+                commands_out.append(draw_rectilinear_x_perturbations(latest_x,5,5,1,travel_speed))
             elif prev_extrusion <= 0 and extrusion > 0:
                 commands_out.append(wait_before)
                 commands_out.append(start_extrusion) 
